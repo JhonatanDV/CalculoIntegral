@@ -197,56 +197,128 @@ if app_mode == "Inicio":
         except Exception as e:
             st.error(f"Error al calcular la integral: {str(e)}")
     
-    # Examples section
-    with st.expander("Ejemplos de Integrales"):
+    # Generador de ejemplos aleatorios
+    st.header("Generador de Ejemplos")
+    
+    # Mostrar ejemplos comunes y un generador aleatorio
+    tab1, tab2 = st.tabs(["Ejemplos Clásicos", "Generador Aleatorio"])
+    
+    with tab1:
         st.markdown("""
-        ### Prueba estos ejemplos:
+        ### Ejemplos clásicos de integrales:
         
-        1. $\\int_{0}^{1} x^2 \\, dx = \\frac{1}{3}$
-        2. $\\int_{0}^{\\pi} \\sin(x) \\, dx = 2$
-        3. $\\int_{1}^{e} \\ln(x) \\, dx = 1$
-        4. $\\int_{0}^{1} e^x \\, dx = e - 1$
-        5. $\\int_{-1}^{1} \\sqrt{1-x^2} \\, dx = \\frac{\\pi}{2}$
-        
-        Haz clic en un ejemplo para probarlo.
+        Estos ejemplos representan algunos de los cálculos más comunes en cálculo integral.
+        Haz clic en cualquiera de ellos para cargar la función y sus límites automáticamente.
         """)
         
         col1, col2 = st.columns(2)
         
-        if col1.button("Ejemplo 1: $\\int_{0}^{1} x^2 \\, dx$", key="example1"):
+        if col1.button("$\\int_{0}^{1} x^2 \\, dx = \\frac{1}{3}$", key="example1"):
             st.session_state.function_str = "x^2"
             st.session_state.lower_bound = "0"
             st.session_state.upper_bound = "1"
-            st.session_state.math_expression = "x^2"
+            if "math_expression_home" in st.session_state:
+                st.session_state["math_expression_home"] = "x^2"
             st.rerun()
             
-        if col2.button("Ejemplo 2: $\\int_{0}^{\\pi} \\sin(x) \\, dx$", key="example2"):
+        if col2.button("$\\int_{0}^{\\pi} \\sin(x) \\, dx = 2$", key="example2"):
             st.session_state.function_str = "sin(x)"
             st.session_state.lower_bound = "0"
             st.session_state.upper_bound = "pi"
-            st.session_state.math_expression = "sin(x)"
+            if "math_expression_home" in st.session_state:
+                st.session_state["math_expression_home"] = "sin(x)"
             st.rerun()
             
-        if col1.button("Ejemplo 3: $\\int_{1}^{e} \\ln(x) \\, dx$", key="example3"):
+        if col1.button("$\\int_{1}^{e} \\ln(x) \\, dx = 1$", key="example3"):
             st.session_state.function_str = "log(x)"
             st.session_state.lower_bound = "1"
             st.session_state.upper_bound = "e"
-            st.session_state.math_expression = "log(x)"
+            if "math_expression_home" in st.session_state:
+                st.session_state["math_expression_home"] = "log(x)"
             st.rerun()
             
-        if col2.button("Ejemplo 4: $\\int_{0}^{1} e^x \\, dx$", key="example4"):
+        if col2.button("$\\int_{0}^{1} e^x \\, dx = e - 1$", key="example4"):
             st.session_state.function_str = "exp(x)"
             st.session_state.lower_bound = "0"
             st.session_state.upper_bound = "1"
-            st.session_state.math_expression = "exp(x)"
+            if "math_expression_home" in st.session_state:
+                st.session_state["math_expression_home"] = "exp(x)"
             st.rerun()
             
-        if col1.button("Ejemplo 5: $\\int_{-1}^{1} \\sqrt{1-x^2} \\, dx$", key="example5"):
+        if col1.button("$\\int_{-1}^{1} \\sqrt{1-x^2} \\, dx = \\frac{\\pi}{2}$", key="example5"):
             st.session_state.function_str = "sqrt(1-x^2)"
             st.session_state.lower_bound = "-1"
             st.session_state.upper_bound = "1"
-            st.session_state.math_expression = "sqrt(1-x^2)"
+            if "math_expression_home" in st.session_state:
+                st.session_state["math_expression_home"] = "sqrt(1-x^2)"
             st.rerun()
+            
+        if col2.button("$\\int_{0}^{1} \\frac{1}{1+x^2} \\, dx = \\frac{\\pi}{4}$", key="example6"):
+            st.session_state.function_str = "1/(1+x^2)"
+            st.session_state.lower_bound = "0"
+            st.session_state.upper_bound = "1"
+            if "math_expression_home" in st.session_state:
+                st.session_state["math_expression_home"] = "1/(1+x^2)"
+            st.rerun()
+    
+    with tab2:
+        st.markdown("""
+        ### Generador de ejemplos aleatorios
+        
+        Este generador crea automáticamente ejemplos de integrales con diferentes niveles de dificultad.
+        Cada ejemplo incluye una explicación detallada del problema y su solución.
+        """)
+        
+        # Opciones para el generador
+        col1, col2 = st.columns(2)
+        with col1:
+            complexity = st.select_slider(
+                "Nivel de dificultad",
+                options=["simple", "medio", "complejo"],
+                value="medio"
+            )
+        
+        # Botón para generar ejemplo aleatorio
+        if st.button("Generar Ejemplo Aleatorio", key="generate_random_example"):
+            try:
+                # Importar el generador de ejemplos
+                from utils.example_generator import generate_random_function, generate_random_bounds, generate_integral_example
+                
+                # Generar un ejemplo aleatorio
+                example = generate_integral_example()
+                
+                # Guardar en el estado de la sesión
+                st.session_state.function_str = example["function"]
+                st.session_state.lower_bound = str(example["lower_bound"])
+                st.session_state.upper_bound = str(example["upper_bound"])
+                if "math_expression_home" in st.session_state:
+                    st.session_state["math_expression_home"] = example["function"]
+                
+                # Mostrar información sobre el ejemplo
+                st.success("¡Ejemplo generado con éxito!")
+                
+                st.markdown(f"""
+                ### Ejemplo generado: {example['description']}
+                
+                **Función:** $f(x) = {example['latex_function']}$
+                
+                **Límites de integración:** [{example['lower_bound']}, {example['upper_bound']}]
+                
+                **Explicación:** {example['explanation']}
+                """)
+                
+                # Sugerir calcular
+                st.info("Los valores se han cargado en la calculadora. Haz clic en 'Calcular Integral' para resolver este ejemplo.")
+                
+            except Exception as e:
+                st.error(f"Error al generar el ejemplo: {str(e)}")
+                # Cargar un ejemplo predefinido seguro
+                st.session_state.function_str = "x^2"
+                st.session_state.lower_bound = "0"
+                st.session_state.upper_bound = "1"
+                if "math_expression_home" in st.session_state:
+                    st.session_state["math_expression_home"] = "x^2"
+                st.info("Se ha cargado un ejemplo predefinido como alternativa.")
 
 # Load other pages based on mode selection
 elif app_mode == "Integrales Definidas":

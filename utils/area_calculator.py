@@ -75,12 +75,29 @@ def calculate_area_between_curves(func1_str, func2_str, lower_bound, upper_bound
         try:
             # Convertir límites a float si son strings
             if isinstance(lower_bound, str):
-                lower_bound = float(lower_bound)
+                try:
+                    # Intentar manejar expresiones simbólicas como "pi" o "e"
+                    lower_bound_expr = sympify(lower_bound)
+                    lower_bound = float(lower_bound_expr)
+                except:
+                    # Si falla, usar un valor predeterminado
+                    lower_bound = 0.0
+                    
             if isinstance(upper_bound, str):
-                upper_bound = float(upper_bound)
+                try:
+                    upper_bound_expr = sympify(upper_bound)
+                    upper_bound = float(upper_bound_expr)
+                except:
+                    # Si falla, usar un valor predeterminado
+                    upper_bound = 1.0
                 
-            # Crear una secuencia de puntos para muestreo
-            sample_points = np.linspace(lower_bound, upper_bound, 5)
+            # Asegurar que lower_bound y upper_bound son números
+            lower_bound_val = float(lower_bound)
+            upper_bound_val = float(upper_bound)
+                
+            # Crear una secuencia de puntos para muestreo manualmente para evitar problemas de tipos
+            delta = (upper_bound_val - lower_bound_val) / 4
+            sample_points = [lower_bound_val + i * delta for i in range(5)]
             
             # Evaluar ambas funciones en los puntos de muestra
             values1 = []
@@ -118,7 +135,14 @@ def calculate_area_between_curves(func1_str, func2_str, lower_bound, upper_bound
                 
         except Exception as e:
             # En caso de error, usar el punto medio como fallback
-            midpoint = (lower_bound + upper_bound) / 2
+            try:
+                # Asegurarse de que los valores son numéricos
+                lb = float(lower_bound) if not isinstance(lower_bound, str) else 0
+                ub = float(upper_bound) if not isinstance(upper_bound, str) else 1
+                midpoint = (lb + ub) / 2
+            except:
+                # Si todo falla, usar un valor predeterminado
+                midpoint = 0.5
             
             # Intentar evaluar en el punto medio
             try:
@@ -160,12 +184,13 @@ def calculate_area_between_curves(func1_str, func2_str, lower_bound, upper_bound
             # Si falla la integración simbólica, intentar con integración numérica
             try:
                 # Convertir límites a float para integración numérica
-                lb = float(lower_bound)
-                ub = float(upper_bound)
-                
-                # Definir una función lambda para evaluación numérica
-                import numpy as np
-                from scipy import integrate as sp_integrate
+                try:
+                    lb = float(lower_bound)
+                    ub = float(upper_bound)
+                except:
+                    # Si la conversión falla, usar valores predeterminados
+                    lb = 0.0
+                    ub = 1.0
                 
                 # Crear funciones numéricas a partir de expresiones simbólicas
                 func_top = sp.lambdify(var, top_expr, modules=["numpy"])
@@ -183,9 +208,20 @@ def calculate_area_between_curves(func1_str, func2_str, lower_bound, upper_bound
                 integral = float_result
             except Exception as num_e:
                 # Si también falla la integración numérica, usar aproximación rectangular simple
-                n_steps = 1000
-                x_vals = np.linspace(lower_bound, upper_bound, n_steps)
-                dx = (upper_bound - lower_bound) / n_steps
+                n_steps = 100
+                
+                # Asegurar que los límites son numéricos
+                try:
+                    lb_val = float(lower_bound)
+                    ub_val = float(upper_bound)
+                except:
+                    lb_val = 0.0
+                    ub_val = 1.0
+                    
+                # Crear puntos de muestreo manualmente
+                delta = (ub_val - lb_val) / n_steps
+                x_vals = [lb_val + i * delta for i in range(n_steps + 1)]
+                dx = delta
                 
                 # Calcular la suma de Riemann
                 area_sum = 0

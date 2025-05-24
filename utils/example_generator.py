@@ -1,7 +1,7 @@
 import random
 import sympy as sp
 import numpy as np
-from sympy import symbols, sympify, integrate, sin, cos, exp, log, sqrt, Rational
+from sympy import symbols, sympify, integrate, sin, cos, exp, log, sqrt, Rational, pi, E, Float
 
 def generate_random_function(complexity="medium", var_str="x"):
     """
