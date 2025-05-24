@@ -89,18 +89,29 @@ if app_mode == "Home":
         input_method = st.radio("Input Method", ["Keyboard", "Upload Image"], horizontal=True)
         
         if input_method == "Keyboard":
-            function_input = create_math_input("Function f(x)", "x^2", key="home_function")
+            function_input = create_math_input("Function f(x)", st.session_state.get("input_value_home_function", "x^2"), key="home_function")
         else:
-            uploaded_file = st.file_uploader("Upload an image of a mathematical equation", type=["jpg", "jpeg", "png"])
+            uploaded_file = st.file_uploader("Upload an image of a mathematical equation", type=["jpg", "jpeg", "png"], key="home_image_uploader")
             if uploaded_file is not None:
                 st.image(uploaded_file, caption="Uploaded Math Expression", width=300)
                 process_uploaded_math_image()
+                st.error("Procesamiento de imágenes no disponible. Por favor ingresa la función manualmente.")
+                function_input = st.text_input("Función reconocida", st.session_state.get("input_value_home_function", "x^2"), key="recognized_function")
+            else:
                 function_input = st.session_state.get("input_value_home_function", "x^2")
         
-        lower_bound = st.text_input("Lower Bound (a)", "0", key="home_lower")
-        upper_bound = st.text_input("Upper Bound (b)", "1", key="home_upper")
+        # Save function to session state
+        st.session_state.input_value_home_function = function_input
         
-        if st.button("Calculate Integral"):
+        # Get bounds from session state if available
+        lower_bound = st.text_input("Lower Bound (a)", st.session_state.get("lower_bound", "0"), key="home_lower")
+        upper_bound = st.text_input("Upper Bound (b)", st.session_state.get("upper_bound", "1"), key="home_upper")
+        
+        # Update session state
+        st.session_state.lower_bound = lower_bound
+        st.session_state.upper_bound = upper_bound
+        
+        if st.button("Calculate Integral", key="calculate_home_integral"):
             try:
                 result, steps = solve_integral(function_input, lower_bound, upper_bound, "x")
                 display_solution(function_input, lower_bound, upper_bound, result, steps)

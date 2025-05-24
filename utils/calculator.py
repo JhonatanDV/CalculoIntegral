@@ -67,6 +67,12 @@ def solve_integral(func_str, lower_bound_str, upper_bound_str, var_str="x"):
         tuple: (result, steps) where result is the value of the integral and steps is a list of solution steps
     """
     try:
+        # Handle the case where the integral symbol is used
+        if func_str.startswith("∫("):
+            func_str = func_str[2:].strip()
+            if func_str.endswith(")"):
+                func_str = func_str[:-1].strip()
+        
         # Parse inputs
         func = parse_expression(func_str, var_str)
         var = symbols(var_str)
