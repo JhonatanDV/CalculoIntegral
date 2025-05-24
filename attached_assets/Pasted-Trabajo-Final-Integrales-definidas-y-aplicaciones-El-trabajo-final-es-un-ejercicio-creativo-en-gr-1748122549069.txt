@@ -1,0 +1,133 @@
+Trabajo Final: Integrales definidas y aplicaciones 
+El trabajo final es un ejercicio creativo en grupos, que busca dar cuenta de: 
+• Apropiar el concepto de la integral y sus aplicaciones 
+• Ilustrar el comportamiento de una situación (natural) mediante funciones y sus integrales 
+En este trabajo se hace énfasis en el concepto de la integral y procesos de integración, se estudia 
+el comportamiento de las funciones en un intervalo determinado. Así pues, se trabajará sobre 
+algunos problemas que se pueden resolver con integrales. De igual forma, se mostrará el uso de 
+la integral para describir el comportamiento de las funciones, así como dar cuenta de algunas de 
+sus aplicaciones. 
+Esto se realiza a partir de la discusión de los ejercicios propuestos (Anexos) para cada grupo y en 
+dos partes importantes. 
+Parte I: Formulación (12 - 16 mayo) 
+Se elabora un texto escrito que sigue las siguientes pautas de un informe académico 
+▪ Introducción: Se espera que en unos dos o tres párrafos presenten una síntesis del este 
+trabajo, respondiendo a los interrogantes: ¿en qué consiste el cálculo integral? ¿cuáles 
+son las aplicaciones del cálculo integral? ¿qué situaciones se pueden abordar desde el 
+cálculo integral en el marco de la ingeniería de software? ¿Qué análisis se realizó en este 
+trabajo? ¿qué se obtuvo con este estudio?  
+▪ Situación: Se espera que cada uno de los grupos, describa analíticamente los procesos 
+que debe tener en los ejercicios planteados (área y volumen). Asimismo, se espera que 
+adapte y describa una situación natural o cotidiana aplicada a la ingeniería de software, 
+que pueda modelarse mediante una función matemática continua y derivable y pueda 
+analizarse a través de un análisis integral.  
+▪ Análisis: Se despliega todo el aparato matemático para analizar los ejercicios planteados 
+y la situación seleccionada Haga uso de representación de funciones, integrales, sus 
+gráficas o tablas, y los diferentes cálculos y el uso de recursos como GeoGebra, Desmos, 
+Python, Excel, etc. Para su estudio.  
+▪ Conclusiones: Con base en lo realizado se deben escribir dos o tres párrafos que 
+sinteticen los resultados a los que se llegó en el análisis, la forma en que estos atienden a 
+los problemas propuestos y/o la manera en que nuestra comprensión de la situación 
+mejora o cambia gracias a lo realizado y que encierre todo el marco conceptual que 
+abordaron en el curso de cálculo integral y el vínculo con la ingeniería de software. 
+▪ Bibliografía: Dar cuenta de las fuentes que consultaron y demás asuntos normales de un 
+trabajo académico (Normas Apa 2024) 
+Parte II: Explicación (19 – 23 mayo) 
+En el grupo de trabajo, realizar una presentación clara (duración máximo 10 minutos) en la que 
+muestren detalles específicos de la parte I del trabajo final. Los aspectos de su presentación 
+deben dar respuestas a: 
+▪ La formulación del problema que abordaron y una justificación de este 
+▪ Análisis de la situación: Presentar la función que describe la situación problema, sus 
+integrales, sus gráficas o tablas, y los diferentes cálculos necesarios para atender el 
+problema propuesto (crecimiento y decrecimiento), etc. 
+▪ Conclusiones a las que llegaron con el análisis y una breve reflexión en términos de qué 
+aportó el curso en su formación profesional como futuros ingenieros de software y cuál es 
+el vínculo de la ingeniería de software con el curso de Cálculo Integral. 
+▪ Bibliografía 
+Parte I: Sumas de Riemann  
+Anexos 
+1. Evalúe la suma de Riemann para 𝑓(𝑥) = 𝑥2 + 3𝑥 + 2 con 2 ≤ 𝑥 ≤ 4, con seis 
+subintervalos, tomando los puntos extremos de la izquierda como los puntos muestra. 
+Con ayuda de un diagrama, explique que representa la suma de Riemann. 
+2. Evalúe la suma de Riemann para 𝑓(𝑥) = 𝑥2 + 2𝑥 con 0 ≤ 𝑥 ≤ 3, con 𝑛 = 6, tomando 
+los puntos extremos de la izquierda como los puntos muestra. Con ayuda de un diagrama, 
+explique que representa la suma de Riemann. 
+3. Si 𝑓 (𝑥) = 𝑒𝑥 +1,0 ≤ 𝑥 ≤ 4, encuentre la suma de Riemann con 𝑛 = 4 correcta hasta 
+seis cifras decimales, tomando los puntos medios como los puntos muestra. ¿Qué 
+representa la suma de Riemann? Ilustre con un diagrama. 
+4. Encuentre la suma de Riemann para 𝑓(𝑥) = cos(𝑥),0 ≤ 𝑥 ≤ 3𝜋
+ 2
+ , con seis términos, 
+tomando los puntos muestra como los puntos extremos de la derecha (Dé su respuesta a 
+una aproximación de seis cifras decimales.) Explique, con ayuda de un diagrama, qué 
+representa la suma de Riemann. 
+5. Encontrar el área de la región delimitada por la gráfica de 𝑦 = 2𝑥2 + 3𝑥 − 2, el eje x y 
+las rectas verticales 𝑥 = 0 y 𝑥 = 3. con seis términos. Explique, con ayuda de un 
+diagrama, qué representa la suma de Riemann. 
+6. Evalúe la suma de Riemann para 𝑓(𝑥) = 3 + 1
+ 2
+ 𝑥 con −1 ≤ 𝑥 ≤ 7, con seis 
+subintervalos, tomando los puntos extremos de la izquierda como los puntos muestra. 
+Con ayuda de un diagrama, explique que representa la suma de Riemann. 
+7. Encuentre la suma de Riemann para 𝑓(𝑥) = 𝑠𝑒𝑛 𝑥 + cos𝑥, 𝜋
+ 2
+ ≤𝑥≤3𝜋
+ 2
+ , con seis 
+términos, tomando los puntos muestra como los puntos extremos de la derecha (Dé su 
+respuesta a una aproximación de seis cifras decimales.) Explique, con ayuda de un 
+diagrama, qué representa la suma de Riemann. 
+8. Encontrar el área de la región delimitada por la gráfica de 𝑦 = 2𝑥3 − 3𝑥2 + 2, el eje x y 
+las rectas verticales 𝑥 = 0 y 𝑥 = 4. con seis términos. Explique, con ayuda de un 
+diagrama, qué representa la suma de Riemann. 
+9. Si 𝑓 (𝑥) = 𝑒𝑥 + 2,2 ≤ 𝑥 ≤4, encuentre la suma de Riemann con 𝑛 = 4 correcta hasta 
+seis cifras decimales, tomando los puntos medios como los puntos muestra. ¿Qué 
+representa la suma de Riemann? Ilustre con un diagrama. 
+10. Evalúe la suma de Riemann para 𝑝(𝑥) = (𝑥 − 2)³ + (𝑥 − 2)² + 1 con 0 ≤ 𝑥 ≤ 6, 
+con 𝑛 = 6, tomando los puntos extremos de la izquierda como los puntos muestra. Con 
+ayuda de un diagrama, explique que representa la suma de Riemann. 
+Parte II: Área debajo de curvas  
+1. El seno y coseno de las curvas se intersecan infinitas veces, acotando regiones de áreas 
+iguales, como se muestra en la figura. Encontrar el área de una de estas regiones (𝑒𝑗𝑒 𝑥) 
+considerando que 𝑠𝑒𝑛(𝑥)
+ cos (𝑥)
+ =tan(𝑥) = 𝑎 y por tanto, 𝑥 = 𝑡𝑎𝑛−1(𝑎). 
+2. La optimización en la base de datos se mide en la convergencia entre la velocidad y la 
+precisión en las revisiones de consultas, estas se miden con 𝑥 = 3 + 𝑦2 y 𝑥 = 𝑦 + 1, 
+respectivamente. Encuentre el área de la región (𝑒𝑗𝑒 𝑦) acotada por las gráficas 𝑓(𝑦) =
+ 3 +𝑦2 y 𝑔(𝑦) = 𝑦+1 que representa la máxima optimización en la base de datos. 
+3. Imagina que un servidor web tiene un consumo de recursos (memoria y CPU) modelado 
+a través de las funciones 𝑀(𝑡) = (𝑡 + 4)² + 2 (𝑡 + 4) + 1 y 𝐶(𝑡) = −𝑡 + 5, 
+durante un proceso de carga de datos (MB), donde 𝑡 es el tiempo en minutos desde que 
+inició el proceso. Calcula el total de recursos utilizados por el servidor web con el área de 
+la región acotada entre recursos de memoria y los de CPU 
+4. Un algoritmo tiene un tiempo de ejecución que puede modelarse mediante la función de 
+complejidad temporal 𝑇(𝑛) = 3𝑛2 + 2𝑛 + 1 en milisegundos, donde 𝑛 es el tamaño de 
+los datos de entrada. Calcula el tiempo total de ejecución al procesar datos desde 𝑛 = 1 
+hasta 𝑛 = 10. 
+5. Imagina que un servidor web tiene un consumo de recursos (memoria y CPU) modelado 
+por la función 𝑅(𝑡) = 5 − 2𝑡2 MB por minuto durante un proceso de carga de datos, 
+donde 𝑡 es el tiempo en minutos desde que inició el proceso. Calcula el total de recursos 
+utilizados en los primeros 5 𝑚𝑖𝑛𝑢𝑡𝑜𝑠. 
+6. La optimización en la base de datos se mide en la convergencia entre la velocidad y la 
+precisión en las revisiones de consultas, estas se miden con 𝑦 = √3 − 𝑥
+ y 𝑦 = 𝑥 −1, 
+respectivamente. Encuentre el área de la región (𝑒𝑗𝑒 𝑦) acotada por las gráficas que 
+representa la máxima optimización en la base de datos. 
+7. Supón que la carga de usuarios en un sistema web está dada por la función 𝐶(𝑡) =
+ 50𝑒−0.2𝑡, donde 𝑡 es el tiempo en minutos desde el inicio de un evento y 𝐶(𝑡) representa 
+el número de usuarios activos. Calcula el total de usuarios acumulados que interactuaron 
+con el sistema entre 𝑡 = 0 y 𝑡 = 30 minutos. 
+8. Supón que la carga de usuarios en un sistema web está dada por la función 𝐶(𝑡) =
+ 20𝑒−0.5𝑡, donde 𝑡 es el tiempo en minutos desde el inicio de un evento y 𝐶(𝑡) representa 
+el número de usuarios activos. Calcula el total de usuarios acumulados que interactuaron 
+con el sistema entre una y ocho horas. 
+9. Imagina que un servidor web tiene un consumo de recursos (memoria y CPU) modelado 
+a través de las funciones 𝑀(𝑡) = 𝑡2 + 2𝑡 + 1 y 𝐶(𝑡) = 2𝑡 + 5, durante un proceso de 
+carga de datos (MB), donde 𝑡 es el tiempo en minutos desde que inició el proceso. 
+Calcula el total de recursos utilizados por el servidor web con el área de la región acotada 
+entre recursos de memoria y los de CPU 
+10. La optimización en la base de datos se mide en la convergencia entre la velocidad y la 
+precisión en las revisiones de consultas, estas se miden con 𝑦 = (𝑥 − 1)2 y 𝑦 = 2𝑥 − 4, 
+respectivamente. Encuentre el área de la región (𝑒𝑗𝑒 𝑦) acotada por las gráficas que 
+representa la máxima optimización en la base de datos.
