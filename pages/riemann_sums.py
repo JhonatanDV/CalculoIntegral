@@ -8,85 +8,83 @@ from components.solution_display import display_riemann_sum_solution
 from assets.examples import riemann_sum_examples
 
 def show():
-    st.title("📊 Riemann Sums Calculator")
+    st.title("📊 Calculadora de Sumas de Riemann")
     
     # Initialize page-specific session state
     if "input_value_riemann_function" not in st.session_state:
-        st.session_state["input_value_riemann_function"] = st.session_state.function_str
+        st.session_state["input_value_riemann_function"] = "x^2"
+    if "riemann_lower" not in st.session_state:
+        st.session_state.riemann_lower = "0"
+    if "riemann_upper" not in st.session_state:
+        st.session_state.riemann_upper = "1"
+    if "riemann_n" not in st.session_state:
+        st.session_state.riemann_n = 10
     
     st.markdown("""
-    Riemann sums are used to approximate the definite integral (area under a curve) by dividing the area into rectangles.
+    Las sumas de Riemann se utilizan para aproximar la integral definida (área bajo una curva) 
+    dividiendo el área en rectángulos.
     
-    This calculator allows you to:
-    - Calculate Riemann sums using left, right, or midpoint methods
-    - Visualize the rectangles used in the approximation
-    - See step-by-step solutions
+    Esta calculadora te permite:
+    - Calcular sumas de Riemann usando métodos de punto izquierdo, derecho o punto medio
+    - Visualizar los rectángulos utilizados en la aproximación
+    - Ver soluciones paso a paso
     """)
     
     # Main input section
-    st.header("Function and Interval")
+    st.header("Función e Intervalo")
     
     col1, col2 = st.columns(2)
     
     with col1:
         # Input Method Selection
-        input_method = st.radio("Input Method", ["Keyboard", "Upload Image"], horizontal=True, key="riemann_input_method")
+        input_method = st.radio("Método de Entrada", ["Teclado", "Subir Imagen"], horizontal=True, key="riemann_input_method")
         
-        if input_method == "Keyboard":
-            function_input = create_math_input("Function f(x)", st.session_state.function_str, key="riemann_function")
+        if input_method == "Teclado":
+            function_input = create_math_input("Función f(x)", st.session_state.get("input_value_riemann_function", "x^2"), key="riemann_function")
         else:
-            uploaded_file = st.file_uploader("Upload an image of a mathematical equation", type=["jpg", "jpeg", "png"], key="riemann_file_uploader")
-            if uploaded_file is not None:
-                st.image(uploaded_file, caption="Uploaded Math Expression", width=300)
-                st.info("La funcionalidad de procesamiento de imágenes matemáticas estará disponible próximamente.")
-                function_input = st.session_state.get("input_value_riemann_function", st.session_state.function_str)
-            else:
-                function_input = st.session_state.function_str
+            st.warning("La funcionalidad de procesamiento de imágenes matemáticas no está disponible. Por favor, usa el método de teclado.")
+            function_input = st.session_state.get("input_value_riemann_function", "x^2")
                 
         # Save the function input to session state
-        st.session_state.function_str = function_input
+        st.session_state["input_value_riemann_function"] = function_input
         
         col1a, col1b = st.columns(2)
         with col1a:
-            lower_bound = st.text_input("Lower Bound (a)", st.session_state.lower_bound, key="riemann_lower")
-            st.session_state.lower_bound = lower_bound
+            lower_bound = st.text_input("Límite Inferior (a)", st.session_state.get("riemann_lower", "0"), key="riemann_lower_input")
+            st.session_state.riemann_lower = lower_bound
         with col1b:
-            upper_bound = st.text_input("Upper Bound (b)", st.session_state.upper_bound, key="riemann_upper")
-            st.session_state.upper_bound = upper_bound
+            upper_bound = st.text_input("Límite Superior (b)", st.session_state.get("riemann_upper", "1"), key="riemann_upper_input")
+            st.session_state.riemann_upper = upper_bound
         
-        n_subdivisions = st.number_input("Number of Subdivisions (n)", min_value=1, max_value=100, value=st.session_state.n_subdivisions, key="riemann_n")
-        st.session_state.n_subdivisions = n_subdivisions
+        n_subdivisions = st.number_input("Número de Subdivisiones (n)", min_value=1, max_value=100, value=st.session_state.get("riemann_n", 10), key="riemann_n_input")
+        st.session_state.riemann_n = n_subdivisions
         
         method = st.selectbox(
-            "Sampling Method",
+            "Método de Muestreo",
             ["left", "right", "midpoint"],
             index=0,
-            key="riemann_method"
+            key="riemann_method_input"
         )
     
     with col2:
-        st.markdown("### Example Problems")
+        st.markdown("### Problemas de Ejemplo")
         selected_example = st.selectbox(
-            "Select an example from the course materials:",
+            "Selecciona un ejemplo de los materiales del curso:",
             list(riemann_sum_examples.keys()),
             key="riemann_example"
         )
         
-        if st.button("Load Example", key="load_riemann_example"):
+        if st.button("Cargar Ejemplo", key="load_riemann_example"):
             example = riemann_sum_examples[selected_example]
-            # Update the input value first
+            # Update session state values
             st.session_state["input_value_riemann_function"] = example["function"]
-            # Then update the other session variables
-            st.session_state.function_str = example["function"]
-            st.session_state.lower_bound = str(example["lower_bound"])
-            st.session_state.upper_bound = str(example["upper_bound"])
-            st.session_state.n_subdivisions = example["subdivisions"]
-            if "method" in example:
-                st.session_state.riemann_method = example["method"]
+            st.session_state.riemann_lower = str(example["lower_bound"])
+            st.session_state.riemann_upper = str(example["upper_bound"])
+            st.session_state.riemann_n = example["subdivisions"]
             st.rerun()
     
     # Calculate button
-    if st.button("Calculate Riemann Sum", key="calculate_riemann"):
+    if st.button("Calcular Suma de Riemann", key="calculate_riemann"):
         try:
             # Parse inputs
             func_str = function_input
@@ -107,36 +105,37 @@ def show():
             display_riemann_sum_solution(func_str, a, b, n, method, riemann_sum, steps, diagram_provided=True)
             
         except Exception as e:
-            st.error(f"Error calculating Riemann sum: {str(e)}")
+            st.error(f"Error al calcular la suma de Riemann: {str(e)}")
     
     # Theory section
-    with st.expander("Learn about Riemann Sums"):
+    with st.expander("Aprende sobre las Sumas de Riemann"):
         st.markdown("""
-        ### What is a Riemann Sum?
+        ### ¿Qué es una Suma de Riemann?
         
-        A Riemann sum is a method for approximating the definite integral (or area under a curve) by dividing it into simpler shapes (rectangles) whose areas are easy to calculate.
+        Una suma de Riemann es un método para aproximar la integral definida (o área bajo una curva) 
+        dividiendo el área en formas más simples (rectángulos) cuyas áreas son fáciles de calcular.
         
-        ### Types of Riemann Sums
+        ### Tipos de Sumas de Riemann
         
-        1. **Left Riemann Sum**: Uses the function value at the left endpoint of each subinterval.
-        2. **Right Riemann Sum**: Uses the function value at the right endpoint of each subinterval.
-        3. **Midpoint Riemann Sum**: Uses the function value at the midpoint of each subinterval.
+        1. **Suma de Riemann Izquierda**: Utiliza el valor de la función en el extremo izquierdo de cada subintervalo.
+        2. **Suma de Riemann Derecha**: Utiliza el valor de la función en el extremo derecho de cada subintervalo.
+        3. **Suma de Riemann del Punto Medio**: Utiliza el valor de la función en el punto medio de cada subintervalo.
         
-        ### The Formula
+        ### La Fórmula
         
-        For a function $f(x)$ on an interval $[a, b]$ divided into $n$ equal subintervals, the Riemann sum is:
+        Para una función $f(x)$ en un intervalo $[a, b]$ dividido en $n$ subintervalos iguales, la suma de Riemann es:
         
         $R_n = \Delta x \sum_{i=1}^{n} f(x_i^*)$
         
-        where:
-        - $\Delta x = \frac{b-a}{n}$ is the width of each subinterval
-        - $x_i^*$ is the sample point in the $i$-th subinterval
+        donde:
+        - $\Delta x = \frac{b-a}{n}$ es el ancho de cada subintervalo
+        - $x_i^*$ es el punto de muestra en el $i$-ésimo subintervalo
         
-        ### Connection to Definite Integrals
+        ### Conexión con Integrales Definidas
         
-        As the number of subintervals increases, the Riemann sum approaches the definite integral:
+        A medida que aumenta el número de subintervalos, la suma de Riemann se aproxima a la integral definida:
         
         $\lim_{n \to \infty} \sum_{i=1}^{n} f(x_i^*) \Delta x = \int_{a}^{b} f(x) \, dx$
         
-        This is the fundamental connection between Riemann sums and definite integrals.
+        Esta es la conexión fundamental entre las sumas de Riemann y las integrales definidas.
         """)

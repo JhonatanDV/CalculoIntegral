@@ -43,8 +43,8 @@ def process_uploaded_math_image():
     st.info("La funcionalidad de procesamiento de imágenes matemáticas estará disponible próximamente.")
 
 app_mode = st.sidebar.selectbox(
-    "Choose Application Mode",
-    ["Home", "Riemann Sums", "Definite Integrals", "Area Between Curves", "Engineering Applications"]
+    "Selecciona un Modo",
+    ["Home", "Riemann Sums", "Definite Integrals", "Area Between Curves", "Engineering Applications", "Software Engineering Scenarios"]
 )
 
 # Home page
@@ -154,6 +154,10 @@ elif app_mode == "Area Between Curves":
 elif app_mode == "Engineering Applications":
     import pages.applications
     pages.applications.show()
+    
+elif app_mode == "Software Engineering Scenarios":
+    import pages.software_engineering_scenarios
+    pages.software_engineering_scenarios.show()
 
 # Footer
 st.markdown("---")

@@ -67,11 +67,16 @@ def solve_integral(func_str, lower_bound_str, upper_bound_str, var_str="x"):
         tuple: (result, steps) where result is the value of the integral and steps is a list of solution steps
     """
     try:
-        # Handle the case where the integral symbol is used
-        if func_str.startswith("∫("):
-            func_str = func_str[2:].strip()
-            if func_str.endswith(")"):
-                func_str = func_str[:-1].strip()
+        # Reemplazar el símbolo de integral por el texto "integrate"
+        if "∫" in func_str:
+            # Extraer solo la función dentro del símbolo de integral
+            if func_str.startswith("∫(") and func_str.endswith(")"):
+                func_str = func_str[2:-1].strip()
+            else:
+                func_str = func_str.replace("∫", "").strip()
+                # Eliminar paréntesis si están presentes
+                if func_str.startswith("(") and func_str.endswith(")"):
+                    func_str = func_str[1:-1].strip()
         
         # Parse inputs
         func = parse_expression(func_str, var_str)
@@ -92,37 +97,37 @@ def solve_integral(func_str, lower_bound_str, upper_bound_str, var_str="x"):
         steps = []
         
         # Step 1: Set up the integral
-        steps.append(f"Step 1: Set up the definite integral:\n$\\int_{{{lower_bound}}}^{{{upper_bound}}} {sp.latex(func)} \\, d{var_str}$")
+        steps.append(f"Paso 1: Configurar la integral definida:\n$\\int_{{{lower_bound}}}^{{{upper_bound}}} {sp.latex(func)} \\, d{var_str}$")
         
         # Step 2: Find the antiderivative
         antiderivative = integrate(func, var)
-        steps.append(f"Step 2: Find the antiderivative:\n$\\int {sp.latex(func)} \\, d{var_str} = {sp.latex(antiderivative)} + C$")
+        steps.append(f"Paso 2: Encontrar la antiderivada:\n$\\int {sp.latex(func)} \\, d{var_str} = {sp.latex(antiderivative)} + C$")
         
         # Step 3: Evaluate at the bounds
-        steps.append(f"Step 3: Apply the Fundamental Theorem of Calculus:\n$\\int_{{{lower_bound}}}^{{{upper_bound}}} {sp.latex(func)} \\, d{var_str} = [{sp.latex(antiderivative)}]_{{{lower_bound}}}^{{{upper_bound}}}$")
+        steps.append(f"Paso 3: Aplicar el Teorema Fundamental del Cálculo:\n$\\int_{{{lower_bound}}}^{{{upper_bound}}} {sp.latex(func)} \\, d{var_str} = [{sp.latex(antiderivative)}]_{{{lower_bound}}}^{{{upper_bound}}}$")
         
         # Step 4: Substitute the upper bound
         upper_result = antiderivative.subs(var, upper_bound)
-        steps.append(f"Step 4: Substitute the upper bound:\n${sp.latex(antiderivative)}\|_{{{var_str}={upper_bound}}} = {sp.latex(upper_result)}$")
+        steps.append(f"Paso 4: Sustituir el límite superior:\n${sp.latex(antiderivative)}\|_{{{var_str}={upper_bound}}} = {sp.latex(upper_result)}$")
         
         # Step 5: Substitute the lower bound
         lower_result = antiderivative.subs(var, lower_bound)
-        steps.append(f"Step 5: Substitute the lower bound:\n${sp.latex(antiderivative)}\|_{{{var_str}={lower_bound}}} = {sp.latex(lower_result)}$")
+        steps.append(f"Paso 5: Sustituir el límite inferior:\n${sp.latex(antiderivative)}\|_{{{var_str}={lower_bound}}} = {sp.latex(lower_result)}$")
         
         # Step 6: Subtract to get the final result
         final_result = upper_result - lower_result
-        steps.append(f"Step 6: Subtract to get the final result:\n${sp.latex(upper_result)} - ({sp.latex(lower_result)}) = {sp.latex(final_result)}$")
+        steps.append(f"Paso 6: Restar para obtener el resultado final:\n${sp.latex(upper_result)} - ({sp.latex(lower_result)}) = {sp.latex(final_result)}$")
         
         # Convert to float if possible for display
         try:
             numeric_result = float(final_result)
-            steps.append(f"Step 7: Simplify:\n$= {numeric_result}$")
+            steps.append(f"Paso 7: Simplificar:\n$= {numeric_result}$")
             return numeric_result, steps
         except:
             return final_result, steps
     
     except Exception as e:
-        raise ValueError(f"Error solving integral: {str(e)}")
+        raise ValueError(f"Error al resolver la integral: {str(e)}")
 
 def calculate_derivative(func_str, var_str="x", order=1):
     """
