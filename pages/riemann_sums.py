@@ -90,9 +90,9 @@ def show():
         try:
             # Parse inputs
             func_str = function_input
-            a = float(lower_bound)
-            b = float(upper_bound)
-            n = int(n_subdivisions)
+            a = float(lower_bound) if lower_bound is not None else 0
+            b = float(upper_bound) if upper_bound is not None else 1
+            n = int(n_subdivisions) if n_subdivisions is not None else 10
             
             # Calculate Riemann sum
             riemann_sum, _ = calculate_riemann_sum(func_str, a, b, n, method, "x")
