@@ -134,40 +134,34 @@ if app_mode == "Inicio":
         
     # Show math keyboard if enabled
     if st.session_state.show_keyboard:
-        keyboard_open = math_keyboard()
+        keyboard_open = math_keyboard("home")
         if not keyboard_open:
             st.session_state.show_keyboard = False
             st.rerun()
+        # Sincronizar la expresión del teclado con el campo de función
+        if "math_expression_home" in st.session_state:
+            st.session_state.function_str = st.session_state["math_expression_home"]
     
     # Mathematical input section
     st.markdown("<div class='math-input-box'>", unsafe_allow_html=True)
     
-    # Input Method Selection
-    input_method = st.radio("Método de Entrada", ["Teclado", "Subir Imagen"], horizontal=True)
+    # Text input field
+    function_input = st.text_input(
+        "Función f(x)", 
+        value=st.session_state.function_str,
+        key="function_input",
+        help="Ingresa una función matemática como sin(x), x^2, etc."
+    )
+    st.session_state.function_str = function_input
+    if "math_expression_home" in st.session_state:
+        st.session_state["math_expression_home"] = function_input
     
-    if input_method == "Teclado":
-        # Text input field
-        function_input = st.text_input(
-            "Función f(x)", 
-            value=st.session_state.math_expression if 'math_expression' in st.session_state else st.session_state.function_str,
-            key="function_input"
-        )
-        st.session_state.function_str = function_input
-        st.session_state.math_expression = function_input
-        
-        # Preview the expression with LaTeX
-        try:
-            expr = sp.sympify(function_input.replace("^", "**"))
-            st.latex(expr)
-        except Exception as e:
-            st.warning("La expresión ingresada no es válida. Por favor, revisa la sintaxis.")
-    else:
-        uploaded_file = st.file_uploader("Subir una imagen de una ecuación matemática", type=["jpg", "jpeg", "png"])
-        if uploaded_file is not None:
-            st.image(uploaded_file, caption="Ecuación Subida", width=300)
-            process_uploaded_math_image()
-            function_input = st.text_input("Función Reconocida", st.session_state.function_str, key="recognized_function")
-            st.session_state.function_str = function_input
+    # Preview the expression with LaTeX
+    try:
+        expr = sp.sympify(function_input.replace("^", "**"))
+        st.latex(expr)
+    except Exception as e:
+        st.warning("La expresión ingresada no es válida. Por favor, revisa la sintaxis.")
     
     col1, col2 = st.columns(2)
     with col1:
@@ -182,18 +176,21 @@ if app_mode == "Inicio":
     # Calculate button
     if st.button("Calcular Integral", key="calculate_btn"):
         try:
+            # Obtener la función de entrada actual
+            function_str = st.session_state.function_str
+            
             # Calculate the integral
-            result, steps = solve_integral(function_input, lower_bound, upper_bound)
+            result, steps = solve_integral(function_str, lower_bound, upper_bound)
             
             # Display solution in a styled box
             st.markdown("<div class='solution-box'>", unsafe_allow_html=True)
             st.subheader("Solución")
             
             # Plot the function and shade the area
-            plot_integral(function_input, lower_bound, upper_bound)
+            plot_integral(function_str, lower_bound, upper_bound)
             
             # Display solution
-            display_solution(function_input, lower_bound, upper_bound, result, steps)
+            display_solution(function_str, lower_bound, upper_bound, result, steps)
             
             st.markdown("</div>", unsafe_allow_html=True)
             
