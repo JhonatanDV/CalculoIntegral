@@ -9,18 +9,86 @@ from components.solution_display import display_solution
 from utils.calculator import evaluate_expression, solve_integral
 from utils.plotting import plot_function, plot_integral
 import streamlit.components.v1 as components
+from components.math_keyboard import math_keyboard
 
 # Page configuration
 st.set_page_config(
-    page_title="CalcuMaster - Integral Calculus Solver",
+    page_title="CalcuMaster - Calculadora de Cálculo Integral",
     page_icon="📊",
     layout="wide",
-    initial_sidebar_state="expanded",
+    initial_sidebar_state="collapsed",  # Ocultar sidebar por defecto
 )
 
-# Sidebar
-st.sidebar.title("CalcuMaster")
-st.sidebar.subheader("Integral Calculus Solver")
+# Custom CSS
+st.markdown("""
+<style>
+    /* Colores y estilos generales */
+    .main {
+        background-color: #f0f2f6;
+    }
+    h1, h2, h3 {
+        color: #1e3a8a;
+        font-weight: 600;
+    }
+    .stButton>button {
+        background-color: #4e8df5;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        padding: 8px 16px;
+        font-weight: 600;
+    }
+    .stButton>button:hover {
+        background-color: #3670cc;
+    }
+    
+    /* Ocultar la barra de hamburguesa y el footer */
+    #MainMenu {visibility: hidden;}
+    footer {visibility: hidden;}
+    
+    /* Estilo para la caja de entrada matemática */
+    .math-input-box {
+        border: 2px solid #4e8df5;
+        border-radius: 8px;
+        padding: 15px;
+        background-color: white;
+        margin-bottom: 15px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    
+    /* Estilos para los tabs */
+    .stTabs [data-baseweb="tab-list"] {
+        gap: 24px;
+    }
+    .stTabs [data-baseweb="tab"] {
+        height: 50px;
+        white-space: pre-wrap;
+        background-color: #f1f3f6;
+        border-radius: 4px 4px 0 0;
+        padding: 10px 16px;
+        font-weight: 600;
+    }
+    .stTabs [aria-selected="true"] {
+        background-color: #4e8df5;
+        color: white;
+    }
+    
+    /* Estilo para la sección de soluciones */
+    .solution-box {
+        background-color: #eef4ff;
+        border-left: 4px solid #4e8df5;
+        padding: 16px;
+        border-radius: 0 8px 8px 0;
+        margin-top: 16px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    }
+    
+    /* Ocultar sidebar completamente */
+    .css-1d391kg, .css-14xtw13 {
+        display: none;
+    }
+</style>
+""", unsafe_allow_html=True)
 
 # Initialize session state variables if they don't exist
 if 'function_str' not in st.session_state:
@@ -33,132 +101,177 @@ if 'variable' not in st.session_state:
     st.session_state.variable = "x"
 if 'n_subdivisions' not in st.session_state:
     st.session_state.n_subdivisions = 6
-if 'input_value_home_function' not in st.session_state:
-    st.session_state.input_value_home_function = "x^2"
+if 'show_keyboard' not in st.session_state:
+    st.session_state.show_keyboard = False
+if 'math_expression' not in st.session_state:
+    st.session_state.math_expression = "x^2"
 
-# Setup for file upload (for image based math input)
+# Function to process uploaded math images
 def process_uploaded_math_image():
-    # This function would be implemented with OCR capabilities 
-    # to extract math equations from images
-    st.info("La funcionalidad de procesamiento de imágenes matemáticas estará disponible próximamente.")
+    # Placeholder for future OCR functionality
+    st.error("La funcionalidad de procesamiento de imágenes matemáticas no está disponible actualmente.")
+    st.info("Por favor, ingresa la expresión matemática usando el teclado.")
 
-app_mode = st.sidebar.selectbox(
+# Main application header
+st.title("🧮 CalcuMaster: Calculadora de Cálculo Integral")
+st.markdown("La herramienta interactiva para resolver y visualizar problemas de cálculo integral")
+
+# Main mode selection
+app_mode = st.selectbox(
     "Selecciona un Modo",
-    ["Home", "Riemann Sums", "Definite Integrals", "Area Between Curves", "Engineering Applications", "Software Engineering Scenarios"]
+    ["Inicio", "Integrales Definidas", "Sumas de Riemann", "Área Entre Curvas", "Aplicaciones de Ingeniería", "Escenarios de Ingeniería de Software"],
+    key="app_mode_select"
 )
 
 # Home page
-if app_mode == "Home":
-    st.title("🧮 CalcuMaster: Integral Calculus Solver")
+if app_mode == "Inicio":
+    st.header("Calculadora Rápida de Integrales")
     
-    st.markdown("""
-    ## Welcome to CalcuMaster!
+    # Math keyboard toggle
+    if st.button("Mostrar Teclado Matemático", key="toggle_keyboard"):
+        st.session_state.show_keyboard = not st.session_state.show_keyboard
+        st.rerun()
+        
+    # Show math keyboard if enabled
+    if st.session_state.show_keyboard:
+        keyboard_open = math_keyboard()
+        if not keyboard_open:
+            st.session_state.show_keyboard = False
+            st.rerun()
     
-    This application helps you solve and visualize integral calculus problems, with a focus on:
+    # Mathematical input section
+    st.markdown("<div class='math-input-box'>", unsafe_allow_html=True)
     
-    - **Riemann Sums**: Calculate and visualize Riemann sums for definite integrals
-    - **Definite Integrals**: Evaluate definite integrals and visualize the area under curves
-    - **Area Between Curves**: Calculate and visualize the area between two curves
-    - **Engineering Applications**: Solve engineering problems using integral calculus
+    # Input Method Selection
+    input_method = st.radio("Método de Entrada", ["Teclado", "Subir Imagen"], horizontal=True)
     
-    ### Getting Started
+    if input_method == "Teclado":
+        # Text input field
+        function_input = st.text_input(
+            "Función f(x)", 
+            value=st.session_state.math_expression if 'math_expression' in st.session_state else st.session_state.function_str,
+            key="function_input"
+        )
+        st.session_state.function_str = function_input
+        st.session_state.math_expression = function_input
+        
+        # Preview the expression with LaTeX
+        try:
+            expr = sp.sympify(function_input.replace("^", "**"))
+            st.latex(expr)
+        except Exception as e:
+            st.warning("La expresión ingresada no es válida. Por favor, revisa la sintaxis.")
+    else:
+        uploaded_file = st.file_uploader("Subir una imagen de una ecuación matemática", type=["jpg", "jpeg", "png"])
+        if uploaded_file is not None:
+            st.image(uploaded_file, caption="Ecuación Subida", width=300)
+            process_uploaded_math_image()
+            function_input = st.text_input("Función Reconocida", st.session_state.function_str, key="recognized_function")
+            st.session_state.function_str = function_input
     
-    1. Select an application mode from the sidebar
-    2. Enter your mathematical expressions and parameters
-    3. View the step-by-step solutions and visualizations
-    
-    ### About Integral Calculus
-    
-    Integral calculus is a powerful mathematical tool used to solve problems involving accumulation, area, volume, and more. 
-    It is widely applied in engineering, physics, economics, and computer science.
-    
-    #### Key Concepts:
-    
-    - **Definite Integral**: $\\int_{a}^{b} f(x) dx$ represents the area under the curve $f(x)$ from $x=a$ to $x=b$
-    - **Riemann Sum**: An approximation of the definite integral using a finite sum of areas of rectangles
-    - **Fundamental Theorem of Calculus**: Connects differentiation and integration
-    """)
-    
-    st.markdown("---")
-    
-    st.header("Quick Calculator")
-    col1, col2 = st.columns([2, 1])
-    
+    col1, col2 = st.columns(2)
     with col1:
-        # Input Method Selection
-        input_method = st.radio("Input Method", ["Keyboard", "Upload Image"], horizontal=True)
-        
-        if input_method == "Keyboard":
-            function_input = create_math_input("Function f(x)", st.session_state.get("input_value_home_function", "x^2"), key="home_function")
-        else:
-            uploaded_file = st.file_uploader("Upload an image of a mathematical equation", type=["jpg", "jpeg", "png"], key="home_image_uploader")
-            if uploaded_file is not None:
-                st.image(uploaded_file, caption="Uploaded Math Expression", width=300)
-                process_uploaded_math_image()
-                st.error("Procesamiento de imágenes no disponible. Por favor ingresa la función manualmente.")
-                function_input = st.text_input("Función reconocida", st.session_state.get("input_value_home_function", "x^2"), key="recognized_function")
-            else:
-                function_input = st.session_state.get("input_value_home_function", "x^2")
-        
-        # Save function to session state
-        st.session_state.input_value_home_function = function_input
-        
-        # Get bounds from session state if available
-        lower_bound = st.text_input("Lower Bound (a)", st.session_state.get("lower_bound", "0"), key="home_lower")
-        upper_bound = st.text_input("Upper Bound (b)", st.session_state.get("upper_bound", "1"), key="home_upper")
-        
-        # Update session state
+        lower_bound = st.text_input("Límite Inferior (a)", st.session_state.lower_bound, key="lower_bound_input")
         st.session_state.lower_bound = lower_bound
-        st.session_state.upper_bound = upper_bound
-        
-        if st.button("Calculate Integral", key="calculate_home_integral"):
-            try:
-                result, steps = solve_integral(function_input, lower_bound, upper_bound, "x")
-                display_solution(function_input, lower_bound, upper_bound, result, steps)
-                
-                # Plot the function and its integral
-                plot_integral(function_input, lower_bound, upper_bound, "x")
-            except Exception as e:
-                st.error(f"Error: {str(e)}")
-    
     with col2:
-        st.markdown("""
-        ### How to use:
-        
-        1. Enter a function in terms of x
-        2. Specify the lower and upper bounds
-        3. Click "Calculate Integral"
-        
-        ### Example inputs:
-        
-        - Function: `x^2 + 3*x + 2`
-        - Lower bound: `2`
-        - Upper bound: `4`
-        
-        Try these examples from the course materials!
-        """)
-
-# Other pages are imported from the pages directory
-elif app_mode == "Riemann Sums":
-    import pages.riemann_sums
-    pages.riemann_sums.show()
+        upper_bound = st.text_input("Límite Superior (b)", st.session_state.upper_bound, key="upper_bound_input")
+        st.session_state.upper_bound = upper_bound
     
-elif app_mode == "Definite Integrals":
+    st.markdown("</div>", unsafe_allow_html=True)
+    
+    # Calculate button
+    if st.button("Calcular Integral", key="calculate_btn"):
+        try:
+            # Calculate the integral
+            result, steps = solve_integral(function_input, lower_bound, upper_bound)
+            
+            # Display solution in a styled box
+            st.markdown("<div class='solution-box'>", unsafe_allow_html=True)
+            st.subheader("Solución")
+            
+            # Plot the function and shade the area
+            plot_integral(function_input, lower_bound, upper_bound)
+            
+            # Display solution
+            display_solution(function_input, lower_bound, upper_bound, result, steps)
+            
+            st.markdown("</div>", unsafe_allow_html=True)
+            
+        except Exception as e:
+            st.error(f"Error al calcular la integral: {str(e)}")
+    
+    # Examples section
+    with st.expander("Ejemplos de Integrales"):
+        st.markdown("""
+        ### Prueba estos ejemplos:
+        
+        1. $\\int_{0}^{1} x^2 \\, dx = \\frac{1}{3}$
+        2. $\\int_{0}^{\\pi} \\sin(x) \\, dx = 2$
+        3. $\\int_{1}^{e} \\ln(x) \\, dx = 1$
+        4. $\\int_{0}^{1} e^x \\, dx = e - 1$
+        5. $\\int_{-1}^{1} \\sqrt{1-x^2} \\, dx = \\frac{\\pi}{2}$
+        
+        Haz clic en un ejemplo para probarlo.
+        """)
+        
+        col1, col2 = st.columns(2)
+        
+        if col1.button("Ejemplo 1: $\\int_{0}^{1} x^2 \\, dx$", key="example1"):
+            st.session_state.function_str = "x^2"
+            st.session_state.lower_bound = "0"
+            st.session_state.upper_bound = "1"
+            st.session_state.math_expression = "x^2"
+            st.rerun()
+            
+        if col2.button("Ejemplo 2: $\\int_{0}^{\\pi} \\sin(x) \\, dx$", key="example2"):
+            st.session_state.function_str = "sin(x)"
+            st.session_state.lower_bound = "0"
+            st.session_state.upper_bound = "pi"
+            st.session_state.math_expression = "sin(x)"
+            st.rerun()
+            
+        if col1.button("Ejemplo 3: $\\int_{1}^{e} \\ln(x) \\, dx$", key="example3"):
+            st.session_state.function_str = "log(x)"
+            st.session_state.lower_bound = "1"
+            st.session_state.upper_bound = "e"
+            st.session_state.math_expression = "log(x)"
+            st.rerun()
+            
+        if col2.button("Ejemplo 4: $\\int_{0}^{1} e^x \\, dx$", key="example4"):
+            st.session_state.function_str = "exp(x)"
+            st.session_state.lower_bound = "0"
+            st.session_state.upper_bound = "1"
+            st.session_state.math_expression = "exp(x)"
+            st.rerun()
+            
+        if col1.button("Ejemplo 5: $\\int_{-1}^{1} \\sqrt{1-x^2} \\, dx$", key="example5"):
+            st.session_state.function_str = "sqrt(1-x^2)"
+            st.session_state.lower_bound = "-1"
+            st.session_state.upper_bound = "1"
+            st.session_state.math_expression = "sqrt(1-x^2)"
+            st.rerun()
+
+# Load other pages based on mode selection
+elif app_mode == "Integrales Definidas":
     import pages.definite_integrals
     pages.definite_integrals.show()
     
-elif app_mode == "Area Between Curves":
+elif app_mode == "Sumas de Riemann":
+    import pages.riemann_sums
+    pages.riemann_sums.show()
+    
+elif app_mode == "Área Entre Curvas":
     import pages.area_between_curves
     pages.area_between_curves.show()
     
-elif app_mode == "Engineering Applications":
+elif app_mode == "Aplicaciones de Ingeniería":
     import pages.applications
     pages.applications.show()
     
-elif app_mode == "Software Engineering Scenarios":
+elif app_mode == "Escenarios de Ingeniería de Software":
     import pages.software_engineering_scenarios
     pages.software_engineering_scenarios.show()
 
-# Footer
+# Footer - Hidden by CSS but keeping for accessibility
 st.markdown("---")
-st.markdown("© 2024 CalcuMaster - Integral Calculus Solver")
+st.markdown("© 2025 CalcuMaster - Calculadora de Cálculo Integral")
