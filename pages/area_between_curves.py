@@ -10,6 +10,16 @@ from assets.examples import area_between_curves_examples
 def show():
     st.title("📏 Area Between Curves Calculator")
     
+    # Initialize page-specific session state for functions
+    if "input_value_function1" not in st.session_state:
+        st.session_state["input_value_function1"] = "x^2"
+    if "input_value_function2" not in st.session_state:
+        st.session_state["input_value_function2"] = "x"
+    if "abc_lower" not in st.session_state:
+        st.session_state.abc_lower = "0"
+    if "abc_upper" not in st.session_state:
+        st.session_state.abc_upper = "1"
+    
     st.markdown("""
     This calculator finds the area enclosed between two curves over a specified interval.
     
@@ -26,14 +36,38 @@ def show():
     col1, col2 = st.columns(2)
     
     with col1:
-        function1_input = create_math_input("First Function f₁(x)", "x^2", key="function1")
-        function2_input = create_math_input("Second Function f₂(x)", "x", key="function2")
+        # Input Method Selection
+        input_method = st.radio("Input Method", ["Keyboard", "Upload Image"], horizontal=True, key="abc_input_method")
+        
+        if input_method == "Keyboard":
+            function1_input = create_math_input("First Function f₁(x)", st.session_state.get("input_value_function1", "x^2"), key="function1")
+            function2_input = create_math_input("Second Function f₂(x)", st.session_state.get("input_value_function2", "x"), key="function2")
+        else:
+            st.markdown("#### First Function")
+            uploaded_file1 = st.file_uploader("Upload an image for first function", type=["jpg", "jpeg", "png"], key="abc_file_uploader1")
+            if uploaded_file1 is not None:
+                st.image(uploaded_file1, caption="Uploaded First Function", width=300)
+                st.info("La funcionalidad de procesamiento de imágenes matemáticas estará disponible próximamente.")
+            function1_input = st.session_state.get("input_value_function1", "x^2")
+            
+            st.markdown("#### Second Function")
+            uploaded_file2 = st.file_uploader("Upload an image for second function", type=["jpg", "jpeg", "png"], key="abc_file_uploader2")
+            if uploaded_file2 is not None:
+                st.image(uploaded_file2, caption="Uploaded Second Function", width=300)
+                st.info("La funcionalidad de procesamiento de imágenes matemáticas estará disponible próximamente.")
+            function2_input = st.session_state.get("input_value_function2", "x")
+        
+        # Save functions to session state
+        st.session_state["input_value_function1"] = function1_input
+        st.session_state["input_value_function2"] = function2_input
         
         col1a, col1b = st.columns(2)
         with col1a:
-            lower_bound = st.text_input("Lower Bound (a)", "0", key="abc_lower")
+            lower_bound = st.text_input("Lower Bound (a)", st.session_state.abc_lower, key="abc_lower_input")
+            st.session_state.abc_lower = lower_bound
         with col1b:
-            upper_bound = st.text_input("Upper Bound (b)", "1", key="abc_upper")
+            upper_bound = st.text_input("Upper Bound (b)", st.session_state.abc_upper, key="abc_upper_input")
+            st.session_state.abc_upper = upper_bound
         
         find_intersections = st.checkbox("Find intersection points automatically", value=True)
     
@@ -47,8 +81,8 @@ def show():
         
         if st.button("Load Example", key="load_abc_example"):
             example = area_between_curves_examples[selected_example]
-            st.session_state.function1 = example["function1"]
-            st.session_state.function2 = example["function2"]
+            st.session_state["input_value_function1"] = example["function1"]
+            st.session_state["input_value_function2"] = example["function2"]
             st.session_state.abc_lower = str(example["lower_bound"])
             st.session_state.abc_upper = str(example["upper_bound"])
             st.rerun()

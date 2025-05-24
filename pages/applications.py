@@ -6,6 +6,7 @@ from utils.plotting import plot_function, plot_integral, plot_area_between_curve
 from components.math_input import create_math_input
 from components.solution_display import display_solution, display_area_between_curves_solution
 from assets.examples import engineering_applications_examples
+from utils.area_calculator import calculate_area_between_curves
 
 def show():
     st.title("🔧 Engineering Applications of Integrals")

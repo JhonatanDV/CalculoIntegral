@@ -22,11 +22,6 @@ st.set_page_config(
 st.sidebar.title("CalcuMaster")
 st.sidebar.subheader("Integral Calculus Solver")
 
-app_mode = st.sidebar.selectbox(
-    "Choose Application Mode",
-    ["Home", "Riemann Sums", "Definite Integrals", "Area Between Curves", "Engineering Applications"]
-)
-
 # Initialize session state variables if they don't exist
 if 'function_str' not in st.session_state:
     st.session_state.function_str = "x^2"
@@ -38,6 +33,19 @@ if 'variable' not in st.session_state:
     st.session_state.variable = "x"
 if 'n_subdivisions' not in st.session_state:
     st.session_state.n_subdivisions = 6
+if 'input_value_home_function' not in st.session_state:
+    st.session_state.input_value_home_function = "x^2"
+
+# Setup for file upload (for image based math input)
+def process_uploaded_math_image():
+    # This function would be implemented with OCR capabilities 
+    # to extract math equations from images
+    st.info("La funcionalidad de procesamiento de imágenes matemáticas estará disponible próximamente.")
+
+app_mode = st.sidebar.selectbox(
+    "Choose Application Mode",
+    ["Home", "Riemann Sums", "Definite Integrals", "Area Between Curves", "Engineering Applications"]
+)
 
 # Home page
 if app_mode == "Home":
@@ -77,7 +85,18 @@ if app_mode == "Home":
     col1, col2 = st.columns([2, 1])
     
     with col1:
-        function_input = create_math_input("Function f(x)", "x^2", key="home_function")
+        # Input Method Selection
+        input_method = st.radio("Input Method", ["Keyboard", "Upload Image"], horizontal=True)
+        
+        if input_method == "Keyboard":
+            function_input = create_math_input("Function f(x)", "x^2", key="home_function")
+        else:
+            uploaded_file = st.file_uploader("Upload an image of a mathematical equation", type=["jpg", "jpeg", "png"])
+            if uploaded_file is not None:
+                st.image(uploaded_file, caption="Uploaded Math Expression", width=300)
+                process_uploaded_math_image()
+                function_input = st.session_state.get("input_value_home_function", "x^2")
+        
         lower_bound = st.text_input("Lower Bound (a)", "0", key="home_lower")
         upper_bound = st.text_input("Upper Bound (b)", "1", key="home_upper")
         

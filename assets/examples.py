@@ -1,3 +1,6 @@
+# Import sympy for constants
+import sympy as sp
+
 # Riemann sum examples from the provided document
 riemann_sum_examples = {
     "Example 1: x² + 3x + 2 on [2, 4]": {

@@ -10,6 +10,10 @@ from assets.examples import riemann_sum_examples
 def show():
     st.title("📊 Riemann Sums Calculator")
     
+    # Initialize page-specific session state
+    if "input_value_riemann_function" not in st.session_state:
+        st.session_state["input_value_riemann_function"] = st.session_state.function_str
+    
     st.markdown("""
     Riemann sums are used to approximate the definite integral (area under a curve) by dividing the area into rectangles.
     
@@ -25,7 +29,21 @@ def show():
     col1, col2 = st.columns(2)
     
     with col1:
-        function_input = create_math_input("Function f(x)", st.session_state.function_str, key="riemann_function")
+        # Input Method Selection
+        input_method = st.radio("Input Method", ["Keyboard", "Upload Image"], horizontal=True, key="riemann_input_method")
+        
+        if input_method == "Keyboard":
+            function_input = create_math_input("Function f(x)", st.session_state.function_str, key="riemann_function")
+        else:
+            uploaded_file = st.file_uploader("Upload an image of a mathematical equation", type=["jpg", "jpeg", "png"], key="riemann_file_uploader")
+            if uploaded_file is not None:
+                st.image(uploaded_file, caption="Uploaded Math Expression", width=300)
+                st.info("La funcionalidad de procesamiento de imágenes matemáticas estará disponible próximamente.")
+                function_input = st.session_state.get("input_value_riemann_function", st.session_state.function_str)
+            else:
+                function_input = st.session_state.function_str
+                
+        # Save the function input to session state
         st.session_state.function_str = function_input
         
         col1a, col1b = st.columns(2)
@@ -56,11 +74,15 @@ def show():
         
         if st.button("Load Example", key="load_riemann_example"):
             example = riemann_sum_examples[selected_example]
+            # Update the input value first
+            st.session_state["input_value_riemann_function"] = example["function"]
+            # Then update the other session variables
             st.session_state.function_str = example["function"]
             st.session_state.lower_bound = str(example["lower_bound"])
             st.session_state.upper_bound = str(example["upper_bound"])
             st.session_state.n_subdivisions = example["subdivisions"]
-            st.session_state.riemann_method = example["method"]
+            if "method" in example:
+                st.session_state.riemann_method = example["method"]
             st.rerun()
     
     # Calculate button
