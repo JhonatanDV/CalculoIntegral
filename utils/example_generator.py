@@ -130,26 +130,72 @@ def generate_integral_example():
     # Generar límites apropiados
     lower, upper = generate_random_bounds(func_str)
     
-    # Calcular el resultado de la integral
+    # Calcular el resultado de la integral con mejor manejo de errores
     try:
         var = symbols('x')
-        func = sympify(func_str.replace('^', '**'))
+        # Reemplazar exponentes y asegurar que la expresión es válida
+        func_str_processed = func_str.replace('^', '**')
+        func = sympify(func_str_processed)
+        
+        # Calcular la antiderivada
         antiderivative = integrate(func, var)
         
-        # Evaluar en los límites
+        # Procesar los límites de integración con manejo seguro
+        # Para el límite inferior
         if isinstance(lower, str):
-            lower_val = sympify(lower)
+            try:
+                # Manejar casos especiales como "pi" o "e"
+                if lower == "pi":
+                    lower_val = pi
+                elif lower == "e":
+                    lower_val = E
+                else:
+                    lower_val = sympify(lower)
+            except:
+                # En caso de error, usar un valor predeterminado
+                lower_val = Float(0.0)
         else:
-            lower_val = lower
-            
-        if isinstance(upper, str):
-            upper_val = sympify(upper)
-        else:
-            upper_val = upper
+            # Asegurar que es un valor numérico
+            try:
+                lower_val = Float(lower)
+            except:
+                lower_val = Float(0.0)
         
-        upper_result = antiderivative.subs(var, upper_val)
-        lower_result = antiderivative.subs(var, lower_val)
-        result = upper_result - lower_result
+        # Para el límite superior
+        if isinstance(upper, str):
+            try:
+                # Manejar casos especiales
+                if upper == "pi":
+                    upper_val = pi
+                elif upper == "e":
+                    upper_val = E
+                else:
+                    upper_val = sympify(upper)
+            except:
+                # En caso de error, usar un valor predeterminado
+                upper_val = Float(1.0)
+        else:
+            # Asegurar que es un valor numérico
+            try:
+                upper_val = Float(upper)
+            except:
+                upper_val = Float(1.0)
+        
+        # Evaluar la antiderivada en los límites
+        try:
+            upper_result = antiderivative.subs(var, upper_val)
+            lower_result = antiderivative.subs(var, lower_val)
+            result = upper_result - lower_result
+            
+            # Intentar simplificar el resultado
+            if isinstance(result, sp.Expr):
+                try:
+                    result = result.evalf()
+                except:
+                    pass
+        except Exception as eval_error:
+            # Si hay error en la evaluación
+            result = "No se pudo evaluar"
         
         # Intentar convertir a float para simplificar
         try:
