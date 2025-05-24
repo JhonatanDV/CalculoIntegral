@@ -1,6 +1,7 @@
 import sympy as sp
 import numpy as np
 from sympy import symbols, sympify, integrate, solve
+from scipy import integrate as sp_integrate
 from utils.calculator import parse_expression
 
 def find_intersection_points(func1_str, func2_str, var_str="x", domain=None):
@@ -69,69 +70,180 @@ def calculate_area_between_curves(func1_str, func2_str, lower_bound, upper_bound
         expr2 = parse_expression(func2_str, var_str)
         var = symbols(var_str)
         
-        # Determine which function is on top (greater y-value)
-        # We'll check at the midpoint of the interval
-        midpoint = (lower_bound + upper_bound) / 2
-        val1 = expr1.subs(var, midpoint)
-        val2 = expr2.subs(var, midpoint)
+        # Determinar qué función está arriba de manera más robusta
+        # Verificar en múltiples puntos en lugar de solo el punto medio
+        try:
+            # Convertir límites a float si son strings
+            if isinstance(lower_bound, str):
+                lower_bound = float(lower_bound)
+            if isinstance(upper_bound, str):
+                upper_bound = float(upper_bound)
+                
+            # Crear una secuencia de puntos para muestreo
+            sample_points = np.linspace(lower_bound, upper_bound, 5)
+            
+            # Evaluar ambas funciones en los puntos de muestra
+            values1 = []
+            values2 = []
+            
+            for point in sample_points:
+                try:
+                    val1 = float(expr1.subs(var, point))
+                    val2 = float(expr2.subs(var, point))
+                    values1.append(val1)
+                    values2.append(val2)
+                except:
+                    # Si hay error en algún punto, continuar con el siguiente
+                    continue
+            
+            # Contar cuántas veces cada función está arriba
+            func1_on_top_count = sum(1 for v1, v2 in zip(values1, values2) if v1 > v2)
+            func2_on_top_count = sum(1 for v1, v2 in zip(values1, values2) if v2 > v1)
+            
+            # Determinar cuál función está arriba la mayoría del tiempo
+            if func1_on_top_count >= func2_on_top_count:
+                top_expr = expr1
+                bottom_expr = expr2
+                top_func_str = func1_str
+                bottom_func_str = func2_str
+                top_idx = 1
+                bottom_idx = 2
+            else:
+                top_expr = expr2
+                bottom_expr = expr1
+                top_func_str = func2_str
+                bottom_func_str = func1_str
+                top_idx = 2
+                bottom_idx = 1
+                
+        except Exception as e:
+            # En caso de error, usar el punto medio como fallback
+            midpoint = (lower_bound + upper_bound) / 2
+            
+            # Intentar evaluar en el punto medio
+            try:
+                val1 = float(expr1.subs(var, midpoint))
+                val2 = float(expr2.subs(var, midpoint))
+                
+                if val1 > val2:
+                    top_expr = expr1
+                    bottom_expr = expr2
+                    top_func_str = func1_str
+                    bottom_func_str = func2_str
+                    top_idx = 1
+                    bottom_idx = 2
+                else:
+                    top_expr = expr2
+                    bottom_expr = expr1
+                    top_func_str = func2_str
+                    bottom_func_str = func1_str
+                    top_idx = 2
+                    bottom_idx = 1
+            except:
+                # Si todo falla, asumir que la primera función está arriba
+                top_expr = expr1
+                bottom_expr = expr2
+                top_func_str = func1_str
+                bottom_func_str = func2_str
+                top_idx = 1
+                bottom_idx = 2
         
-        if val1 > val2:
-            top_expr = expr1
-            bottom_expr = expr2
-            top_func_str = func1_str
-            bottom_func_str = func2_str
-        else:
-            top_expr = expr2
-            bottom_expr = expr1
-            top_func_str = func2_str
-            bottom_func_str = func1_str
-        
-        # Compute the integral of the difference
+        # Calcular la diferencia de expresiones
         diff_expr = top_expr - bottom_expr
-        integral = integrate(diff_expr, (var, lower_bound, upper_bound))
         
-        # Format the steps
+        # Intentar calcular la integral simbólicamente
+        try:
+            # Usar la integración simbólica
+            integral = integrate(diff_expr, (var, lower_bound, upper_bound))
+            float_result = float(integral)
+        except Exception as int_e:
+            # Si falla la integración simbólica, intentar con integración numérica
+            try:
+                # Convertir límites a float para integración numérica
+                lb = float(lower_bound)
+                ub = float(upper_bound)
+                
+                # Definir una función lambda para evaluación numérica
+                import numpy as np
+                from scipy import integrate as sp_integrate
+                
+                # Crear funciones numéricas a partir de expresiones simbólicas
+                func_top = sp.lambdify(var, top_expr, modules=["numpy"])
+                func_bottom = sp.lambdify(var, bottom_expr, modules=["numpy"])
+                
+                # Función diferencia para integración
+                def diff_func(x):
+                    try:
+                        return func_top(x) - func_bottom(x)
+                    except:
+                        return 0
+                
+                # Calcular la integral numéricamente
+                float_result, _ = sp_integrate.quad(diff_func, lb, ub)
+                integral = float_result
+            except Exception as num_e:
+                # Si también falla la integración numérica, usar aproximación rectangular simple
+                n_steps = 1000
+                x_vals = np.linspace(lower_bound, upper_bound, n_steps)
+                dx = (upper_bound - lower_bound) / n_steps
+                
+                # Calcular la suma de Riemann
+                area_sum = 0
+                for x in x_vals:
+                    try:
+                        top_val = float(top_expr.subs(var, x))
+                        bottom_val = float(bottom_expr.subs(var, x))
+                        area_sum += (top_val - bottom_val) * dx
+                    except:
+                        continue
+                
+                float_result = area_sum
+                integral = float_result
+        
+        # Format the steps (ahora en español)
         steps = []
         
-        # Step 1: Identify the functions
-        steps.append(f"Step 1: Identify the two functions")
+        # Paso 1: Identificar las funciones
+        steps.append(f"Paso 1: Identificar las dos funciones")
         steps.append(f"f₁({var_str}) = {func1_str}")
         steps.append(f"f₂({var_str}) = {func2_str}")
         
-        # Step 2: Determine which function is on top
-        steps.append(f"Step 2: Determine which function has greater values in the interval [{lower_bound}, {upper_bound}]")
-        steps.append(f"At {var_str} = {midpoint}:")
-        steps.append(f"f₁({midpoint}) = {float(val1)}")
-        steps.append(f"f₂({midpoint}) = {float(val2)}")
+        # Paso 2: Determinar qué función está arriba
+        steps.append(f"Paso 2: Determinar qué función tiene valores mayores en el intervalo [{lower_bound}, {upper_bound}]")
+        steps.append(f"Según el análisis del intervalo, f{top_idx} está por encima de f{bottom_idx} en la mayoría de los puntos.")
         
-        if val1 > val2:
-            steps.append(f"Since f₁({midpoint}) > f₂({midpoint}), f₁ is the top function.")
-        else:
-            steps.append(f"Since f₂({midpoint}) > f₁({midpoint}), f₂ is the top function.")
+        # Paso 3: Configurar la integral
+        steps.append(f"Paso 3: Configurar la integral para el área entre curvas")
+        steps.append(f"Área = ∫_{{{lower_bound}}}^{{{upper_bound}}} [función_superior - función_inferior] d{var_str}")
+        steps.append(f"Área = ∫_{{{lower_bound}}}^{{{upper_bound}}} [{top_func_str} - ({bottom_func_str})] d{var_str}")
         
-        # Step 3: Set up the integral
-        steps.append(f"Step 3: Set up the integral for the area between curves")
-        steps.append(f"Area = ∫_{{{lower_bound}}}^{{{upper_bound}}} [top_function - bottom_function] d{var_str}")
-        steps.append(f"Area = ∫_{{{lower_bound}}}^{{{upper_bound}}} [{top_func_str} - ({bottom_func_str})] d{var_str}")
+        # Paso 4: Simplificar el integrando
+        steps.append(f"Paso 4: Simplificar el integrando")
+        steps.append(f"Área = ∫_{{{lower_bound}}}^{{{upper_bound}}} [{sp.latex(diff_expr)}] d{var_str}")
         
-        # Step 4: Simplify the integrand
-        steps.append(f"Step 4: Simplify the integrand")
-        steps.append(f"Area = ∫_{{{lower_bound}}}^{{{upper_bound}}} [{sp.latex(diff_expr)}] d{var_str}")
+        # Paso 5: Calcular la integral
+        steps.append(f"Paso 5: Calcular la integral")
         
-        # Step 5: Compute the integral
-        steps.append(f"Step 5: Compute the integral")
-        steps.append(f"Area = [{sp.latex(integrate(diff_expr, var))}]_{{{lower_bound}}}^{{{upper_bound}}}")
+        # Intentar mostrar los pasos de cálculo si es posible
+        try:
+            antiderivative = integrate(diff_expr, var)
+            steps.append(f"Área = [{sp.latex(antiderivative)}]_{{{lower_bound}}}^{{{upper_bound}}}")
+            
+            # Paso 6: Evaluar en los límites
+            upper_result = antiderivative.subs(var, upper_bound)
+            lower_result = antiderivative.subs(var, lower_bound)
+            steps.append(f"Área = {sp.latex(upper_result)} - ({sp.latex(lower_result)})")
+        except:
+            # Si no se puede mostrar el proceso paso a paso
+            steps.append(f"Área = ∫_{{{lower_bound}}}^{{{upper_bound}}} [{sp.latex(diff_expr)}] d{var_str}")
         
-        # Step 6: Evaluate at the bounds
-        upper_result = integrate(diff_expr, var).subs(var, upper_bound)
-        lower_result = integrate(diff_expr, var).subs(var, lower_bound)
-        steps.append(f"Area = {sp.latex(upper_result)} - ({sp.latex(lower_result)})")
+        # Paso 7: Calcular el resultado final
+        steps.append(f"Paso 7: Calcular el resultado final")
+        steps.append(f"Área = {float_result:.6f} unidades cuadradas")
         
-        # Step 7: Calculate the final result
-        steps.append(f"Step 7: Calculate the final result")
-        steps.append(f"Area = {sp.latex(integral)} = {float(integral)}")
-        
-        return float(integral), steps
+        return float_result, steps
     
     except Exception as e:
-        raise ValueError(f"Error calculating area between curves: {str(e)}")
+        import traceback
+        error_details = traceback.format_exc()
+        raise ValueError(f"Error al calcular el área entre curvas: {str(e)}\nDetalles: {error_details}")

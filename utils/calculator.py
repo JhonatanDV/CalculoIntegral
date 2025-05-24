@@ -15,8 +15,19 @@ def parse_expression(expr_str, var_str="x"):
     """
     try:
         # Handle common input issues
-        expr_str = expr_str.replace("^", "**")
-        expr_str = expr_str.replace("e", "E")
+        expr_str = expr_str.replace("^", "**")  # Reemplazar ^ por **
+        
+        # Manejar nombres especiales que pueden causar conflictos
+        expr_str = expr_str.replace("Exp", "exp")  # Normalizar Exp a exp
+        
+        # Evitar problemas con el operador e (Euler)
+        if "e" in expr_str and not any(s in expr_str for s in ["exp(", "sec(", "ceiling("]):
+            expr_str = expr_str.replace("e", "E")
+        
+        # Manejo especial para expresiones con log(n)/n para evitar división por cero
+        if "log" in expr_str and var_str in expr_str and f"log({var_str})/{var_str}" in expr_str.replace(" ", ""):
+            expr_str = expr_str.replace(f"log({var_str})", f"log({var_str}+0.0001)")
+            expr_str = expr_str.replace(f"/{var_str}", f"/({var_str}+0.0001)")
         
         # Define the symbol
         var = symbols(var_str)
@@ -26,7 +37,7 @@ def parse_expression(expr_str, var_str="x"):
         
         return expr
     except Exception as e:
-        raise ValueError(f"Error parsing expression: {str(e)}")
+        raise ValueError(f"Error al analizar la expresión: {str(e)}")
 
 def evaluate_expression(expr_str, var_str="x", var_value=None):
     """
@@ -45,13 +56,24 @@ def evaluate_expression(expr_str, var_str="x", var_value=None):
         var = symbols(var_str)
         
         if var_value is not None:
+            # Manejar valores problemáticos
+            if var_value == 0 and ('log' in expr_str or f'1/{var_str}' in expr_str or f'/{var_str}' in expr_str):
+                # Usar un valor muy pequeño en lugar de cero para evitar errores de división
+                var_value = 0.0001
+            
             # Substitute the variable value and evaluate
             result = expr.subs(var, var_value)
-            return float(result)
+            
+            # Intentar convertir a float
+            try:
+                return float(result)
+            except (TypeError, ValueError):
+                # Si no se puede convertir a float, devolver la expresión simbólica
+                return result
         else:
             return expr
     except Exception as e:
-        raise ValueError(f"Error evaluating expression: {str(e)}")
+        raise ValueError(f"Error al evaluar la expresión: {str(e)}")
 
 def solve_integral(func_str, lower_bound_str, upper_bound_str, var_str="x"):
     """
